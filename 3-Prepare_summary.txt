@@ -1,0 +1,39 @@
+import pandas as pd
+from glob import glob
+
+samplelist  = glob("*/")
+
+
+fnames = ['abundance.txt', 
+          'bins_percent_recruitment.txt', 
+          'detection.txt', 
+          'hmms_Ribosomal_RNAs.txt', 
+          'hmm_hit_totals.txt', 
+          'max_normalized_ratio.txt', 
+          'mean_coverage.txt', 
+          'mean_coverage_Q2Q3.txt', 
+          'relative_abundance.txt', 
+          'std_coverage.txt', 
+          'variability.txt']
+
+mydict = {key:[] for key in fnames}
+
+for sample in samplelist:
+    for key in mydict:
+        
+        fpath = sample + 'bins_across_samples//' + key
+        df = pd.read_csv(fpath, delim_whitespace=True)
+        if df.columns[0] == 'samples':
+            df = df.T
+            df.columns = [sample[:-1]]
+            df = df.drop('samples')
+            
+        if df.index[0] == 0:
+            df.index = df.bins
+            df = df.drop(columns='bins')
+            
+        mydict[key].append(df)
+        
+for key in mydict:
+    df_cct = pd.concat(mydict[key], axis=1, sort=False)
+    df_cct.to_csv('all_'+key, sep='\t')

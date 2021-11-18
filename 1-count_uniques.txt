@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+import pandas as pd
+from glob import glob #use glob for neater file listing and less logic
+
+
+filenames = glob("*.names") #use glob for neater file listing and less logic
+unique_dict = {}
+
+
+for filename in filenames:
+	df = pd.read_csv(filename, sep="\t|;", header=None, names=['1','2','3', '4','5','6','7','Kingdom','Phylum','Class','Order','Family','Genus','Species', 'Other'], engine = 'python')
+	unique_gen = len(df.Genus.unique())
+	unique_sp = len(df.Species.unique())
+	gen_sp_tuple = (unique_gen,unique_sp) #create tuple that will be in format (#genera,#species)
+	unique_dict[filename] = gen_sp_tuple #add filename as key and tuple as value
+
+#for creating output dictionary
+outfile = 'uniques_file.csv'
+outdata = pd.DataFrame.from_dict(data=unique_dict, orient='index', columns = ['Number of unique genera', 'Number of unique species'])
+outdata.to_csv(outfile)
+
+print("Job successful, output saved in ", outfile)
+
+
+
+
+
